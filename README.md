@@ -7,15 +7,16 @@ Unlike other POW benchmarking tools, the hash rate of the Blake2b algorithm is m
  reliable results.
 
 Note that this tool only supports OpenCL work generation using the standard `nano_work` kernel. Not all devices
- (including most CPUs) will support this capability.
+ (including most CPUs) will support this capability. You may also need to install a separate OpenCL driver for your
+ hardware devices.
 
 ## How to use
 Download the latest version from the [releases page](https://github.com/koczadly/nano-pow-benchmark/releases), or
  build the project from source.
 
-This program requires Java 8 to be installed on your system. You can run the program from the console like so:
+This program requires Java 8 to be installed on your system. You can run the program from the command line like so:
 ```text
-java -jar npowbench.jar --gpu 0:0 --duration 20
+java -jar npowbench.jar --gpu 0:0 --duration 10
 ```
 
 ## Example output
@@ -35,16 +36,16 @@ Benchmark parameters:
   - Local work size: 1,024
   - Generation kernel: [nano_node implementation]
 
-Running benchmark for 20 seconds...
+Running benchmark for 10 seconds...
 
 =====================================================
                   BENCHMARK RESULTS
 =====================================================
-Time elapsed: 20.000 seconds (19.983433s GPU work time)
-Computation speed: 1.585 GH/s (31,682,723,840 total hashes)
+Time elapsed: 10.000 seconds (9.992633s GPU work time)
+Computation speed: 1.615 GH/s (16,139,681,792 total hashes)
 
 Expected average generation times for difficulty thresholds:
-  - fffffe0000000000: 5.291 ms/work (189.000 work/s)
-  - fffffff800000000: 338.624 ms/work (2.953 work/s)
+  - fffffe0000000000: 5.194 ms/work (192.542 work/s)
+  - fffffff800000000: 332.395 ms/work (3.008 work/s)
 =====================================================
 ```
