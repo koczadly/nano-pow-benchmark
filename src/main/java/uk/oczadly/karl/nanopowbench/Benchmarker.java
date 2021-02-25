@@ -54,14 +54,16 @@ public class Benchmarker {
             cl_device_id device = devices[deviceId];
     
             // Fetch device and platform info
-            byte[] platformNameArr = new byte[256];
-            clGetPlatformInfo(platform, CL_PLATFORM_NAME, platformNameArr.length, Pointer.to(platformNameArr), null);
-            String platformName = new String(platformNameArr, StandardCharsets.UTF_8);
+            byte[] strBuffer = new byte[256];
+            long[] strBufferLen = new long[1];
             
-            byte[] deviceNameArr = new byte[256];
-            clGetDeviceInfo(device, CL_DEVICE_NAME, deviceNameArr.length, Pointer.to(deviceNameArr), null);
-            String deviceName = new String(deviceNameArr, StandardCharsets.UTF_8);
+            clGetPlatformInfo(platform, CL_PLATFORM_NAME, strBuffer.length, Pointer.to(strBuffer), strBufferLen);
+            String platformName = new String(strBuffer, 0, (int)strBufferLen[0] - 1, StandardCharsets.UTF_8);
             
+            clGetDeviceInfo(device, CL_DEVICE_NAME, strBuffer.length, Pointer.to(strBuffer), strBufferLen);
+            String deviceName = new String(strBuffer, 0, (int)strBufferLen[0] - 1, StandardCharsets.UTF_8);
+    
+    
             long[] workGroupSizeArray = new long[1];
             clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_GROUP_SIZE, Sizeof.cl_ulong,
                     Pointer.to(workGroupSizeArray), null);
@@ -149,6 +151,19 @@ public class Benchmarker {
                 is.close();
             } catch (IOException ignored) {}
         }
+    }
+    
+    private static String getString(cl_platform_id platform, int paramName) {
+        // Obtain the length of the string that will be queried
+        long size[] = new long[1];
+        clGetPlatformInfo(platform, paramName, 0, null, size);
+        
+        // Create a buffer of the appropriate size and fill it with the info
+        byte buffer[] = new byte[(int)size[0]];
+        clGetPlatformInfo(platform, paramName, buffer.length, Pointer.to(buffer), null);
+        
+        // Create a string from the buffer (excluding the trailing \0 byte)
+        return new String(buffer, 0, buffer.length-1);
     }
     
 }
