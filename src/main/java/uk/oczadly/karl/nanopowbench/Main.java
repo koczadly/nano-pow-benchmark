@@ -2,12 +2,11 @@ package uk.oczadly.karl.nanopowbench;
 
 import org.apache.commons.cli.*;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -97,7 +96,7 @@ public class Main {
             if (localWorkSize == -1) {
                 System.out.printf("  - Local work size: [OpenCL default]%n");
             } else {
-                System.out.printf("  - Local work size: %,d%n%n", localWorkSize);
+                System.out.printf("  - Local work size: %,d%n", localWorkSize);
             }
             System.out.printf("  - Generation kernel: %s%n%n",
                     kernelFile != null ? kernelFile : "[nano_node standard]");

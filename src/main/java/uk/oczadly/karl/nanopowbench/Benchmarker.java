@@ -117,8 +117,8 @@ public class Benchmarker {
         try {
             do {
                 // Run a batch of work generation
-                clEnqueueNDRangeKernel(clQueue, clKernel, 1, null, globalWorkSize, localWorkSize, 0, null, null);
                 long batchStartTime = System.nanoTime();
+                clEnqueueNDRangeKernel(clQueue, clKernel, 1, null, globalWorkSize, localWorkSize, 0, null, null);
                 clFinish(clQueue); // Wait for completion
                 totalWorkTime += System.nanoTime() - batchStartTime;
                 iterations++;
