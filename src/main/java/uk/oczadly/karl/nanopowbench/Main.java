@@ -14,16 +14,17 @@ import java.util.stream.Collectors;
  */
 public class Main {
     
-    public static void main(String[] args) throws Exception {
-        System.out.println("===================================================");
-        System.out.println("           NANO PoW BENCHMARK (Blake2b)");
-        System.out.printf("===================================================%n%n");
+    public static void main(String[] args) {
+        System.out.println("=====================================================");
+        System.out.println("            NANO PoW BENCHMARK (Blake2b)");
+        System.out.println("   https://github.com/koczadly/nano-pow-benchmark/");
+        System.out.printf("=====================================================%n%n");
         
         Options options = new Options();
         options.addOption(Option.builder("g").longOpt("gpu")
-                .desc("Sets OpenCL platform and device to benchmark (default = 0:0)")
+                .desc("Sets OpenCL platform and device to benchmark")
                 .hasArg().numberOfArgs(1).argName("platform:device")
-                .build());
+                .required().build());
         options.addOption(Option.builder("d").longOpt("duration")
                 .desc("Specifies the total benchmark duration (default = 20s)")
                 .hasArg().numberOfArgs(1).argName("seconds")
@@ -99,16 +100,16 @@ public class Main {
                 System.out.printf("  - Local work size: %,d%n", localWorkSize);
             }
             System.out.printf("  - Generation kernel: %s%n%n",
-                    kernelFile != null ? kernelFile : "[nano_node standard]");
+                    kernelFile != null ? kernelFile : "[nano_node implementation]");
             
             System.out.printf("Running benchmark for %,d seconds...%n", duration);
             BenchmarkResults results = benchmark.benchmark(duration, threads, localWorkSize);
             double solsPerSec = results.getSolutions() / (results.getWorkTime() / 1e9);
             
             // Print results
-            System.out.printf("%n===================================================%n");
-            System.out.println("                 BENCHMARK RESULTS");
-            System.out.println("===================================================");
+            System.out.printf("%n=====================================================%n");
+            System.out.println("                  BENCHMARK RESULTS");
+            System.out.println("=====================================================");
             System.out.printf("Time elapsed: %.3f seconds (%.6fs GPU work time)%n",
                     results.getTotalTimeElapsed() / 1e9, results.getWorkTime() / 1e9);
             System.out.printf("Computation speed: %s (%,d total hashes)%n%n",
@@ -120,7 +121,7 @@ public class Main {
                         Util.leftPadString(Long.toHexString(diff), 16, '0'),
                         MetricPrefix.format(1d / diffSolsPerSec, "s", false), diffSolsPerSec);
             });
-            System.out.println("===================================================");
+            System.out.println("=====================================================");
         } catch (Exception e) {
             System.err.println(e.getClass().getSimpleName() + ": " + e.getMessage());
             new HelpFormatter().printHelp("npowbench", options);
