@@ -26,7 +26,7 @@ public class Main {
                 .hasArg().numberOfArgs(1).argName("platform:device")
                 .required().build());
         options.addOption(Option.builder("d").longOpt("duration")
-                .desc("Specifies the total benchmark duration (default = 20s)")
+                .desc("Specifies the total benchmark duration (default = 15s)")
                 .hasArg().numberOfArgs(1).argName("seconds")
                 .build());
         options.addOption(Option.builder("t").longOpt("threads")
@@ -54,7 +54,7 @@ public class Main {
             String[] deviceSplit = cmdLine.getOptionValue("g", "0:0").split(":");
             int clPlat = Integer.parseInt(deviceSplit[0]);
             int clDevice = Integer.parseInt(deviceSplit[1]);
-            int duration = Integer.parseInt(cmdLine.getOptionValue("d", "20"));
+            int duration = Integer.parseInt(cmdLine.getOptionValue("d", "15"));
             long threads = Long.parseLong(cmdLine.getOptionValue("t", "1048576"));
             long localWorkSize = Long.parseLong(cmdLine.getOptionValue("s", "-1"));
             Path kernelFile = cmdLine.hasOption("k")
@@ -117,9 +117,10 @@ public class Main {
             System.out.println("Expected average generation times for difficulty thresholds:");
             difficulties.stream().sorted(Long::compareUnsigned).forEach(diff -> {
                 double diffSolsPerSec = (Util.ulongToDouble(-diff) / 0x1p64) * solsPerSec;
-                System.out.printf("  - %s: %s/work (%,.3f work/s)%n",
+                System.out.printf("  - %s: %s (%,.4f work/s)%n",
                         Util.leftPadString(Long.toHexString(diff), 16, '0'),
-                        MetricPrefix.format(1d / diffSolsPerSec, "s", false), diffSolsPerSec);
+                        MetricPrefix.format(1d / diffSolsPerSec, "s/work", false),
+                        diffSolsPerSec);
             });
             System.out.println("=====================================================");
         } catch (Exception e) {
