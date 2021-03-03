@@ -11,8 +11,8 @@ Note that this tool only supports OpenCL work generation using the standard `nan
  hardware devices.
 
 ## How to use
-Download the latest version from the [releases page](https://github.com/koczadly/nano-pow-benchmark/releases), or
- build the project from source.
+[Download the latest built jar](https://github.com/koczadly/nano-pow-benchmark/releases/latest/download/npowbench.jar), 
+ or clone the repository and build the project from source using Maven.
 
 This program requires Java 8 to be installed on your system. You can run the program from the command line like so:
 ```text
