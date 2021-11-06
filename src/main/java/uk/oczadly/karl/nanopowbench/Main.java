@@ -24,7 +24,7 @@ public class Main {
 
 
     public static void main(String[] rawArgs) {
-        ConsolePrinter out = new ConsolePrinter(System.out, 3, 73);
+        OutputPrinter out = new OutputPrinter(System.out, 3, 73);
         out.printHeader("NANO PoW BENCHMARK (Blake2b)", "https://github.com/koczadly/nano-pow-benchmark/");
         out.blankLine();
 

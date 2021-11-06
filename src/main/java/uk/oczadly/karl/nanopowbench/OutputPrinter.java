@@ -3,38 +3,34 @@ package uk.oczadly.karl.nanopowbench;
 import uk.oczadly.karl.nanopowbench.util.Util;
 
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class ConsolePrinter {
+public class OutputPrinter {
 
-    private final PrintStream ps;
+    private final PrintWriter pw;
     private final int indentSpaces, idealLength;
 
-    public ConsolePrinter(PrintStream ps, int indentSpaces, int idealLength) {
-        this.ps = ps;
+    public OutputPrinter(PrintStream ps, int indentSpaces, int idealLength) {
+        this.pw = new PrintWriter(ps, true);
         this.indentSpaces = indentSpaces;
         this.idealLength = idealLength;
     }
 
 
-    public PrintStream getPrintStream() {
-        return ps;
-    }
-
-
     public void blankLine() {
-        ps.println();
+        pw.println();
     }
 
     public void println(String str) {
-        ps.println(str);
+        pw.println(str);
     }
 
     public void println(int indent, String str) {
-        ps.println(indent(indent) + str);
+        pw.println(indent(indent) + str);
     }
 
     public void printSeparator() {
@@ -46,7 +42,7 @@ public class ConsolePrinter {
     }
 
     public void printTitle(String title) {
-        ps.println(title + ":");
+        pw.println(title + ":");
     }
 
     public void printHeader(String... lines) {
@@ -68,7 +64,7 @@ public class ConsolePrinter {
     public void printCentered(String text, int width) {
         int calcWidth = Math.max(text.length(), Math.max(idealLength, width));
         int padLen = (calcWidth - text.length()) / 2;
-        ps.println(pad(padLen) + text);
+        pw.println(pad(padLen) + text);
     }
 
     public void printParams(int indent, LinkedHashMap<String, String> paramMap) {
@@ -80,7 +76,7 @@ public class ConsolePrinter {
                 .max().orElse(0);
         for (Map.Entry<String, String> param : params) {
             String padding = Util.repeatChar(' ', maxLen - param.getKey().length());
-            ps.printf("%s%s:%s %s%n", prepad, param.getKey(), padding, param.getValue());
+            pw.printf("%s%s:%s %s%n", prepad, param.getKey(), padding, param.getValue());
         }
     }
 
