@@ -6,12 +6,14 @@ import java.util.Objects;
 
 public class Difficulty implements Comparable<Difficulty> {
 
-    private final long uval;
-    private final String label;
+    public static final long DIFF_V2_RECEIVE = 0xfffffe0000000000L;
+    public static final long DIFF_V2_SEND = 0xfffffff800000000L;
+    public static final long DIFF_V1 = 0xffffffc000000000L;
 
-    public Difficulty(long uval, String label) {
+    private final long uval;
+
+    public Difficulty(long uval) {
         this.uval = uval;
-        this.label = label;
     }
 
 
@@ -20,7 +22,14 @@ public class Difficulty implements Comparable<Difficulty> {
     }
 
     public String getLabel() {
-        return label;
+        if (uval == DIFF_V2_RECEIVE) {
+            return "receive";
+        } else if (uval == DIFF_V2_SEND) {
+            return "send";
+        } else if (uval == DIFF_V1) {
+            return "legacy";
+        }
+        return null;
     }
 
     public String asHex() {
@@ -31,8 +40,8 @@ public class Difficulty implements Comparable<Difficulty> {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(asHex());
-        if (label != null) {
-            sb.append(" [").append(label).append(']');
+        if (getLabel() != null) {
+            sb.append(" [").append(getLabel()).append(']');
         }
         return sb.toString();
     }
@@ -57,7 +66,7 @@ public class Difficulty implements Comparable<Difficulty> {
 
 
     public static Difficulty parseHex(String hex) {
-        return new Difficulty(Long.parseUnsignedLong(hex, 16), null);
+        return new Difficulty(Long.parseUnsignedLong(hex, 16));
     }
 
 }

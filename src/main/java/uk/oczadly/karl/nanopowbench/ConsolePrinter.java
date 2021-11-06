@@ -34,7 +34,7 @@ public class ConsolePrinter {
     }
 
     public void println(int indent, String str) {
-        ps.println(pad(indent) + str);
+        ps.println(indent(indent) + str);
     }
 
     public void printSeparator() {
@@ -67,12 +67,12 @@ public class ConsolePrinter {
 
     public void printCentered(String text, int width) {
         int calcWidth = Math.max(text.length(), Math.max(idealLength, width));
-        int padLen = (calcWidth - text.length()) / 4;
+        int padLen = (calcWidth - text.length()) / 2;
         ps.println(pad(padLen) + text);
     }
 
     public void printParams(int indent, LinkedHashMap<String, String> paramMap) {
-        String prepad = pad(indent);
+        String prepad = indent(indent);
         Set<Map.Entry<String, String>> params = paramMap.entrySet();
         int maxLen = params.stream()
                 .map(Map.Entry::getKey)
@@ -84,8 +84,12 @@ public class ConsolePrinter {
         }
     }
 
-    private String pad(int indent) {
-        return Util.repeatChar(' ', indent * indentSpaces);
+    private String indent(int indent) {
+        return pad(indent * indentSpaces);
+    }
+
+    private String pad(int chars) {
+        return Util.repeatChar(' ', chars);
     }
 
 }

@@ -19,12 +19,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class Main {
 
-    private static final Difficulty DIFF_RECEIVE = new Difficulty(0xfffffe0000000000L, "R");
-    private static final Difficulty DIFF_SEND = new Difficulty(0xfffffff800000000L, "S");
+    private static final Difficulty DIFF_RECEIVE = new Difficulty(Difficulty.DIFF_V2_RECEIVE);
+    private static final Difficulty DIFF_SEND = new Difficulty(Difficulty.DIFF_V2_SEND);
 
 
     public static void main(String[] rawArgs) {
-        ConsolePrinter out = new ConsolePrinter(System.out, 2, 73);
+        ConsolePrinter out = new ConsolePrinter(System.out, 3, 73);
         out.printHeader("NANO PoW BENCHMARK (Blake2b)", "https://github.com/koczadly/nano-pow-benchmark/");
         out.blankLine();
 
@@ -33,10 +33,8 @@ public class Main {
             // Parse args
             args.parse(rawArgs);
             Set<Difficulty> difficulties = args.getDifficulties();
-            if (difficulties.isEmpty()) {
-                difficulties.add(DIFF_RECEIVE);
-                difficulties.add(DIFF_SEND);
-            }
+            difficulties.add(DIFF_RECEIVE);
+            difficulties.add(DIFF_SEND);
 
             // Configure benchmark
             Benchmarker bench = BenchmarkerFactory.create(args);
@@ -52,18 +50,21 @@ public class Main {
             BenchmarkResults result = bench.run(args.getDuration(), TimeUnit.SECONDS);
 
             // Calculate results
-            double solsPerSec = result.getTotalHashes() / (result.getWorkTime() / 1e9);
-//            double secsPerIteration = result.getWorkTime() / (double) result.getIterations() / 1e9;
+            double hashrate = result.getTotalHashes() / (result.getWorkTime() / 1e9);
+            double secsPerIteration = (result.getWorkTime() / 1e9) / result.getIterations();
+
             LinkedHashMap<String, String> resultParams = new LinkedHashMap<>();
-            resultParams.put("Time elapsed",    String.format("%.3f seconds", result.getTimeElapsed() / 1e9));
-            resultParams.put("Working time",    String.format("%.6f seconds", result.getWorkTime() / 1e9));
-            resultParams.put("Hash rate",       MetricPrefix.format(solsPerSec, "H/s", true));
-            resultParams.put("Computed hashes", String.format("%,d", result.getTotalHashes()));
+            resultParams.put("Total time elapsed", String.format("%.3f s", result.getTimeElapsed() / 1e9));
+            resultParams.put("Total computation time", String.format("%.6f s", result.getWorkTime() / 1e9));
+            resultParams.put("Batch computation time", MetricPrefix.format(secsPerIteration, "s", false));
+            resultParams.put("Hash rate", MetricPrefix.format(hashrate, "H/s", true));
+            resultParams.put("Total computed hashes", String.format("%,d", result.getTotalHashes()));
+
             LinkedHashMap<String, String> diffParams = new LinkedHashMap<>();
             difficulties.stream().sorted()
                     .forEach(diff -> {
                         double diffProbability = Util.ulongToDouble(-diff.asLong()) / 0x1p64;
-                        double diffAvgSecsPerWork = 1d / (diffProbability * solsPerSec);
+                        double diffAvgSecsPerWork = Math.max(1d / (diffProbability * hashrate), secsPerIteration);
                         diffParams.put(diff.toString(),
                                 String.format("%s (%,.4f work/s)",
                                         MetricPrefix.format(diffAvgSecsPerWork, "s/work", false),
@@ -72,8 +73,10 @@ public class Main {
 
             // Print results
             out.printHeader("BENCHMARK RESULTS");
-            out.printParams(0, resultParams);
-            out.printTitle("Performance metrics for difficulty thresholds");
+            out.printTitle("Benchmark measurements");
+            out.printParams(1, resultParams);
+            out.blankLine();
+            out.printTitle("Expected performance for difficulty thresholds");
             out.printParams(1, diffParams);
             out.printSeparator();
         } catch (BenchmarkConfigException e) {

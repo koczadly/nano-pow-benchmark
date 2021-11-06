@@ -11,7 +11,7 @@ public class NanoWorkKernelExecutor extends KernelExecutor {
 
     @Override
     public String getDisplayName() {
-        return getKernelFunctionName() + "(attempt, result, item, diff)";
+        return getKernelFunctionName() + "(a, r, i, d)";
     }
 
     @Override
