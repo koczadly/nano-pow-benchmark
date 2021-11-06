@@ -24,7 +24,7 @@ public class Main {
 
 
     public static void main(String[] rawArgs) {
-        ConsolePrinter out = new ConsolePrinter(System.out, 2, 57);
+        ConsolePrinter out = new ConsolePrinter(System.out, 2, 73);
         out.printHeader("NANO PoW BENCHMARK (Blake2b)", "https://github.com/koczadly/nano-pow-benchmark/");
         out.blankLine();
 
@@ -73,13 +73,14 @@ public class Main {
             // Print results
             out.printHeader("BENCHMARK RESULTS");
             out.printParams(0, resultParams);
-            out.printTitle("Performance for difficulty thresholds");
+            out.printTitle("Performance metrics for difficulty thresholds");
             out.printParams(1, diffParams);
             out.printSeparator();
         } catch (BenchmarkConfigException e) {
             System.err.println("Error in benchmark configuration: " + e.getMessage());
         } catch (BenchmarkInitException e) {
             System.err.println("Failed to initialize benchmark: " + e.getMessage());
+            e.printStackTrace();
         } catch (BenchmarkException e) {
             System.err.println("An error occurred!");
             e.printStackTrace();

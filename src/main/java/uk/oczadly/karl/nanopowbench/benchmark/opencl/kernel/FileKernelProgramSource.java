@@ -1,4 +1,4 @@
-package uk.oczadly.karl.nanopowbench.benchmark.opencl.sourceloader;
+package uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel;
 
 import uk.oczadly.karl.nanopowbench.benchmark.exception.BenchmarkConfigException;
 import uk.oczadly.karl.nanopowbench.benchmark.exception.BenchmarkInitException;

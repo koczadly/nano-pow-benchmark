@@ -1,17 +1,21 @@
 package uk.oczadly.karl.nanopowbench;
 
 import org.apache.commons.cli.*;
+import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.ProvidedKernels;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class CommandArguments {
 
     private static final String OPT_CL_DEVICE = "device";
-    private static final String OPT_DURATION = "t";
+    private static final String OPT_DURATION = "duration";
     private static final String OPT_THREAD_COUNT = "threads";
-    private static final String OPT_DIFFICULTY = "D";
-    private static final String OPT_KERNEL_FILE = "kernelfile";
-    private static final String OPT_KERNEL_VER = "kernel";
+    private static final String OPT_DIFFICULTY = "difficulty";
+    private static final String OPT_KERNEL_FILE = "kernel-file";
+//    private static final String OPT_KERNEL_INTERFACE = "kernel-interface";
+    private static final String OPT_KERNEL = "kernel";
 
 
     private final Options options = generateOptions();
@@ -48,12 +52,16 @@ public class CommandArguments {
         return new HashSet<>(getOptions(OPT_DIFFICULTY, Difficulty::parseHex));
     }
 
-    public Optional<String> getKernelFile() throws ParseException {
-        return getOption(OPT_KERNEL_FILE, v -> v);
+    public Optional<Path> getKernelFile() throws ParseException {
+        return getOption(OPT_KERNEL_FILE, Paths::get);
     }
 
-    public Optional<Integer> getKernelVersion() throws ParseException {
-        return getOption(OPT_KERNEL_VER, Integer::parseInt);
+//    public Optional<Integer> getKernelExecutor() throws ParseException {
+//        return getOption(OPT_KERNEL_INTERFACE, Integer::parseInt);
+//    }
+
+    public Optional<ProvidedKernels.ProvidedKernel> getProvidedKernel() throws ParseException {
+        return getOption(OPT_KERNEL, v -> ProvidedKernels.get(Integer.parseInt(v)));
     }
 
 
@@ -86,28 +94,32 @@ public class CommandArguments {
 
     private Options generateOptions() {
         return new Options()
-                .addOption(Option.builder(OPT_CL_DEVICE)
+                .addOption(Option.builder("g").longOpt(OPT_CL_DEVICE)
                         .desc("Sets OpenCL platform and device to benchmark")
                         .hasArg().numberOfArgs(1).argName("platid:devid")
                         .build())
-                .addOption(Option.builder(OPT_DURATION).longOpt("duration")
+                .addOption(Option.builder("d").longOpt(OPT_DURATION)
                         .desc("Specifies the total benchmark duration (default = 10s)")
                         .hasArg().numberOfArgs(1).argName("seconds")
                         .build())
-                .addOption(Option.builder(OPT_THREAD_COUNT)
+                .addOption(Option.builder("t").longOpt(OPT_THREAD_COUNT)
                         .desc("Batch/thread count")
                         .hasArg().numberOfArgs(1).argName("threads")
                         .build())
-                .addOption(Option.builder(OPT_DIFFICULTY).longOpt("difficulty")
+                .addOption(Option.builder("D").longOpt(OPT_DIFFICULTY)
                         .desc("Compares the result against the difficulty threshold")
                         .hasArg().argName("difficulty")
                         .build())
-                .addOption(Option.builder(OPT_KERNEL_FILE)
-                        .desc("Specifies the OpenCL kernel file")
+                .addOption(Option.builder().longOpt(OPT_KERNEL_FILE)
+                        .desc("Specifies a custom OpenCL kernel file")
                         .hasArg().numberOfArgs(1).argName("path to file")
                         .build())
-                .addOption(Option.builder(OPT_KERNEL_VER)
-                        .desc("Specifies the OpenCL kernel version (1 or 2)")
+//                .addOption(Option.builder().longOpt(OPT_KERNEL_INTERFACE)
+//                        .desc("Specifies the version of the work kernel interface")
+//                        .hasArg().numberOfArgs(1).argName("version")
+//                        .build())
+                .addOption(Option.builder("kv").longOpt(OPT_KERNEL)
+                        .desc("Specifies the OpenCL kernel program to use (1 or 2)")
                         .hasArg().numberOfArgs(1).argName("version")
                         .build());
     }

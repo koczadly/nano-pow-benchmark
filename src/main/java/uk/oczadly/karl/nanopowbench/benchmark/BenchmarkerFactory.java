@@ -3,9 +3,7 @@ package uk.oczadly.karl.nanopowbench.benchmark;
 import org.apache.commons.cli.ParseException;
 import uk.oczadly.karl.nanopowbench.CommandArguments;
 import uk.oczadly.karl.nanopowbench.benchmark.exception.BenchmarkInitException;
-import uk.oczadly.karl.nanopowbench.benchmark.opencl.OCLBenchmarker;
-
-import java.nio.file.Paths;
+import uk.oczadly.karl.nanopowbench.benchmark.opencl.CLBenchmarker;
 
 public class BenchmarkerFactory {
 
@@ -16,11 +14,12 @@ public class BenchmarkerFactory {
 
 
     private static Benchmarker createOCL(CommandArguments args) throws ParseException, BenchmarkInitException {
-        OCLBenchmarker.Builder builder = new OCLBenchmarker.Builder();
+        CLBenchmarker.Builder builder = new CLBenchmarker.Builder();
         args.getCLDevice().ifPresent(device -> builder.useDevice(device[0], device[1]));
         args.getThreadCount().ifPresent(builder::setWorkSize);
-        args.getKernelFile().map(Paths::get).ifPresent(builder::useKernelFile);
-        args.getKernelVersion().ifPresent(builder::useProvidedKernel);
+        args.getProvidedKernel().ifPresent(builder::useProvidedKernel);
+        args.getKernelFile().ifPresent(builder::useKernelFile);
+//        args.getKernelExecutor().ifPresent(builder::useKernelExecutor);
         return builder.build();
     }
 

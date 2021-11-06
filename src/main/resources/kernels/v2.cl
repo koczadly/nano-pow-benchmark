@@ -1,5 +1,6 @@
 // ==============================================================================================
-// Taken from the official Nano source code (https://github.com/nanocurrency/nano-node)
+// Taken from the official Nano source code
+// https://github.com/nanocurrency/nano-node/blob/ff424afa00492c54f35aa6f40f208d7f9226bc7e/nano/node/openclwork.cpp
 // ==============================================================================================
 
 

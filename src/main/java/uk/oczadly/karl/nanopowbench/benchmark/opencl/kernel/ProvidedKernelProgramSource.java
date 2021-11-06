@@ -1,6 +1,5 @@
-package uk.oczadly.karl.nanopowbench.benchmark.opencl.sourceloader;
+package uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel;
 
-import uk.oczadly.karl.nanopowbench.benchmark.exception.BenchmarkConfigException;
 import uk.oczadly.karl.nanopowbench.benchmark.exception.BenchmarkInitException;
 import uk.oczadly.karl.nanopowbench.util.FileUtil;
 
@@ -9,23 +8,19 @@ import java.io.InputStream;
 
 public class ProvidedKernelProgramSource implements KernelProgramSource {
 
-    private final int version;
+    private final String displayName, resourceName;
 
-    public ProvidedKernelProgramSource() {
-        this(2); // Default kernel version
-    }
-
-    public ProvidedKernelProgramSource(int version) {
-        this.version = version;
+    public ProvidedKernelProgramSource(String displayName, int version) {
+        this.displayName = displayName;
+        this.resourceName = "kernels/v" + version + ".cl";
     }
 
 
     @Override
     public String load() throws BenchmarkInitException {
-        InputStream resource = ProvidedKernelProgramSource.class.getClassLoader()
-                .getResourceAsStream("nano_work_v" + version + ".cl");
+        InputStream resource = ProvidedKernelProgramSource.class.getClassLoader().getResourceAsStream(resourceName);
         if (resource == null) {
-            throw new BenchmarkConfigException("Unrecognized or unsupported kernel version.");
+            throw new BenchmarkInitException("Couldn't load kernel source file.");
         }
         try {
             return FileUtil.readFileAsString(resource);
@@ -36,7 +31,7 @@ public class ProvidedKernelProgramSource implements KernelProgramSource {
 
     @Override
     public String toDisplayString() {
-        return "nano-node, version " + version;
+        return displayName;
     }
 
 }
