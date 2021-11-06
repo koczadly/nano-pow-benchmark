@@ -6,10 +6,10 @@ import uk.oczadly.karl.nanopowbench.benchmark.Benchmarker;
 import uk.oczadly.karl.nanopowbench.benchmark.exception.BenchmarkConfigException;
 import uk.oczadly.karl.nanopowbench.benchmark.exception.BenchmarkException;
 import uk.oczadly.karl.nanopowbench.benchmark.exception.BenchmarkInitException;
-import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.KernelExecutor;
+import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.executor.KernelExecutor;
 import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.ProvidedKernels;
-import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.FileKernelProgramSource;
-import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.KernelProgramSource;
+import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.program.FileKernelProgramSource;
+import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.program.KernelProgramSource;
 
 import java.nio.file.Path;
 import java.util.LinkedHashMap;

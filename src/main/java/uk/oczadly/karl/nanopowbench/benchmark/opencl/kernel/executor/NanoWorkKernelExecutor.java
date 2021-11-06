@@ -1,4 +1,4 @@
-package uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel;
+package uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.executor;
 
 import org.jocl.*;
 

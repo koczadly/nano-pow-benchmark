@@ -1,5 +1,9 @@
 package uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel;
 
+import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.executor.KernelExecutor;
+import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.executor.NanoWorkKernelExecutor;
+import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.program.ProvidedKernelProgramSource;
+
 public class ProvidedKernels {
 
     private static final int LATEST = 2;

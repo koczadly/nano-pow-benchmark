@@ -1,9 +1,10 @@
-package uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel;
+package uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.executor;
 
 import org.jocl.*;
 import uk.oczadly.karl.nanopowbench.benchmark.exception.BenchmarkConfigException;
 import uk.oczadly.karl.nanopowbench.benchmark.exception.BenchmarkInitException;
 import uk.oczadly.karl.nanopowbench.benchmark.opencl.CLDevice;
+import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.program.KernelProgramSource;
 
 import java.nio.charset.StandardCharsets;
 
