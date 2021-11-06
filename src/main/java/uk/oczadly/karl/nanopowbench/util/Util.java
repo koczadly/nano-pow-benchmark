@@ -1,4 +1,4 @@
-package uk.oczadly.karl.nanopowbench;
+package uk.oczadly.karl.nanopowbench.util;
 
 /**
  * @author Karl Oczadly
@@ -17,6 +17,14 @@ public class Util {
         for (int i=0; i<(minLen-str.length()); i++)
             sb.append(padChar);
         sb.append(str);
+        return sb.toString();
+    }
+
+    public static String repeatChar(char c, int n) {
+        StringBuilder sb = new StringBuilder(n);
+        for (int i = 0; i < n; i++) {
+            sb.append(c);
+        }
         return sb.toString();
     }
     

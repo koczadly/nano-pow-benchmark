@@ -1,4 +1,4 @@
-package uk.oczadly.karl.nanopowbench;
+package uk.oczadly.karl.nanopowbench.util;
 
 /**
  * @author Karl Oczadly
@@ -34,7 +34,7 @@ public enum MetricPrefix {
     }
     
     public String format(double val, String unit) {
-        return String.format("%.3f %s%s", convert(val), getSymbol() != null ? getSymbol() : "", unit);
+        return String.format("%,.3f %s%s", convert(val), getSymbol() != null ? getSymbol() : "", unit);
     }
     
     
