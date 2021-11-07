@@ -6,24 +6,25 @@ import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.program.ProvidedKern
 
 public class ProvidedKernels {
 
-    private static final int LATEST = 2;
+    private static final String DEFAULT = "NN2";
 
 
-    public static ProvidedKernel getLatest() {
-        return get(LATEST);
+    public static ProvidedKernel getDefault() {
+        return get(DEFAULT);
     }
 
-    public static ProvidedKernel get(int version) {
-        switch (version) {
-            case 1:
+    public static ProvidedKernel get(String variant) {
+        switch (variant.toUpperCase()) {
+            case "NN1":
                 return new ProvidedKernel(
-                        new ProvidedKernelProgramSource("nano-node V1 (as of commit 46475fa)", 1),
+                        new ProvidedKernelProgramSource("nano-node Blake2b V1 (as of 46475fa)", "NN1"),
                         new NanoWorkKernelExecutor());
-            case 2:
+            case "NN2":
                 return new ProvidedKernel(
-                    new ProvidedKernelProgramSource("nano-node V2 (as of commit ff424af)", 2),
+                    new ProvidedKernelProgramSource("nano-node Blake2b V2 (as of ff424af)", "NN2"),
                     new NanoWorkKernelExecutor());
-            default: throw new IllegalArgumentException("Unrecognized kernel version \"" + version + "\".");
+            default:
+                throw new IllegalArgumentException("Unrecognized kernel variant \"" + variant + "\".");
         }
     }
 

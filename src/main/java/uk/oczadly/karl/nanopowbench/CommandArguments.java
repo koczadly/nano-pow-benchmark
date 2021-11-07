@@ -66,7 +66,7 @@ public class CommandArguments {
 //    }
 
     public Optional<ProvidedKernels.ProvidedKernel> getProvidedKernel() throws ParseException {
-        return getOption(OPT_KERNEL, v -> ProvidedKernels.get(Integer.parseInt(v)));
+        return getOption(OPT_KERNEL, ProvidedKernels::get);
     }
 
 
@@ -128,7 +128,7 @@ public class CommandArguments {
 //                        .hasArg().numberOfArgs(1).argName("version")
 //                        .build())
                 .addOption(Option.builder().longOpt(OPT_KERNEL)
-                        .desc("Specifies the OpenCL kernel program to use (1 or 2).")
+                        .desc("Specifies the OpenCL kernel program to use [NN1, NN2].")
                         .hasArg().numberOfArgs(1).argName("version")
                         .build());
     }

@@ -70,7 +70,7 @@ public class CLBenchmarker implements Benchmarker {
         private KernelExecutor kernelExecutor;
 
         public Builder() {
-            useProvidedKernel(ProvidedKernels.getLatest());
+            useProvidedKernel(ProvidedKernels.getDefault());
         }
 
 

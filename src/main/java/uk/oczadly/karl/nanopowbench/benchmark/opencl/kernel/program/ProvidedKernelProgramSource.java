@@ -10,9 +10,9 @@ public class ProvidedKernelProgramSource implements KernelProgramSource {
 
     private final String displayName, resourceName;
 
-    public ProvidedKernelProgramSource(String displayName, int version) {
+    public ProvidedKernelProgramSource(String displayName, String shortName) {
         this.displayName = displayName;
-        this.resourceName = "kernels/v" + version + ".cl";
+        this.resourceName = "cl-kernel/" + shortName + ".cl";
     }
 
 

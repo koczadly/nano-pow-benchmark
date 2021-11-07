@@ -33,7 +33,7 @@ Option | Description
 `--threads <threads>` | Thread count (global work size)
 `--local-work-size <size>` | Set the OpenCL local work size
 `--difficulty <diff>` | Output calculations for the specified difficulty threshold (as hexadecimal)<br>*Multiple difficulties may be provided*
-`--kernel <version>` | Specify which *nano-node* kernel version to use<br>*Supported versions: **1**, **2***
+`--kernel <variant>` | Specify which *nano-node* kernel variant to use<br>*Supported versions: **NN1**, **NN2***
 `--kernel-file <path>` | Specify a custom OpenCL kernel program file<br>*The program must be compatible with `nano_work`*
 
 ## Example

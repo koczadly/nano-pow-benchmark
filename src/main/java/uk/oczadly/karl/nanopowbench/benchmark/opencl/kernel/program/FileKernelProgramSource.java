@@ -31,7 +31,7 @@ public class FileKernelProgramSource implements KernelProgramSource {
 
     @Override
     public String toDisplayString() {
-        return file.toString();
+        return "File (" + file.toString() + ")";
     }
 
 }
