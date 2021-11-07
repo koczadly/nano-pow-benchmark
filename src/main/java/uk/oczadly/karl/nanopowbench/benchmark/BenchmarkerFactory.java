@@ -16,7 +16,8 @@ public class BenchmarkerFactory {
     private static Benchmarker createOCL(CommandArguments args) throws ParseException, BenchmarkInitException {
         CLBenchmarker.Builder builder = new CLBenchmarker.Builder();
         args.getCLDevice().ifPresent(device -> builder.useDevice(device[0], device[1]));
-        args.getThreadCount().ifPresent(builder::setWorkSize);
+        args.getThreadCount().ifPresent(builder::setGlobalWorkSize);
+        args.getLocalWorkSize().ifPresent(builder::setLocalWorkSize);
         args.getProvidedKernel().ifPresent(builder::useProvidedKernel);
         args.getKernelFile().ifPresent(builder::useKernelFile);
 //        args.getKernelExecutor().ifPresent(builder::useKernelExecutor);

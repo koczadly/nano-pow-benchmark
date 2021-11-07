@@ -28,9 +28,10 @@ java -jar npowbench.jar --device 0:0 --duration 10
 ### Command line options
 Option | Description 
 --- | --- 
-`--device <plat:dev>` | Specify OpenCL device and platform IDs
+`--device <platform:device> | Specify OpenCL device ID and platform ID
 `--duration <seconds>` | Benchmark duration in seconds
 `--threads <threads>` | Thread count (global work size)
+`--local-work-size <size>` | Set the OpenCL local work size
 `--difficulty <diff>` | Output calculations for the specified difficulty threshold (as hexadecimal)<br>*Multiple difficulties may be provided*
 `--kernel <version>` | Specify which *nano-node* kernel version to use<br>*Supported versions: **1**, **2***
 `--kernel-file <path>` | Specify a custom OpenCL kernel program file<br>*The program must be compatible with `nano_work`*

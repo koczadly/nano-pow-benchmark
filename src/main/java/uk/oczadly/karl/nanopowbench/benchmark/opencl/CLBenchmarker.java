@@ -20,8 +20,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class CLBenchmarker implements Benchmarker {
 
-    private static final int DEFAULT_WORK_SIZE = 1024 * 1024;
-
     private final KernelExecutor kernel;
 
     private CLBenchmarker(KernelExecutor kernel) {
@@ -32,11 +30,12 @@ public class CLBenchmarker implements Benchmarker {
     public LinkedHashMap<String, String> getParameters() {
         CLDevice dev = kernel.getDevice();
         LinkedHashMap<String, String> params = new LinkedHashMap<>();
-        params.put("Device",              dev.getDeviceName() + " (#" + dev.getID() + ")");
-        params.put("Platform",            dev.getPlatformName() + " (#" + dev.getPlatformId() + ")");
-        params.put("Work size (threads)", String.format("%,d", kernel.getWorkSize()));
-        params.put("Kernel program",      kernel.getProgram().toDisplayString());
-        params.put("Kernel interface",    kernel.getDisplayName());
+        params.put("Device", dev.getDeviceName() + " (#" + dev.getID() + ")");
+        params.put("Platform", dev.getPlatformName() + " (#" + dev.getPlatformId() + ")");
+        params.put("Threads (global work size)", String.format("%,d", kernel.getGlobalWorkSize()));
+        params.put("Local work size", kernel.getLocalWorkSize().map(s -> String.format("%,d", s)).orElse("Default"));
+        params.put("Kernel program", kernel.getProgram().toDisplayString());
+        params.put("Kernel function interface", kernel.getDisplayName());
         return params;
     }
 
@@ -59,14 +58,14 @@ public class CLBenchmarker implements Benchmarker {
 
         return new BenchmarkResults(
                 timeElapsed, totalWorkTime,
-                iterations * kernel.getWorkSize(),
+                iterations * kernel.getGlobalWorkSize(),
                 iterations);
     }
 
 
     public static final class Builder {
         private CLDevice device = new CLDevice(0, 0);
-        private long workSize = DEFAULT_WORK_SIZE;
+        private long globalWorkSize = 1024 * 1024, localWorkSize = -1;
         private KernelProgramSource kernelProgram;
         private KernelExecutor kernelExecutor;
 
@@ -80,8 +79,13 @@ public class CLBenchmarker implements Benchmarker {
             return this;
         }
 
-        public Builder setWorkSize(long workSize) {
-            this.workSize = workSize;
+        public Builder setGlobalWorkSize(long workSize) {
+            this.globalWorkSize = workSize;
+            return this;
+        }
+
+        public Builder setLocalWorkSize(long localWorkSize) {
+            this.localWorkSize = localWorkSize;
             return this;
         }
 
@@ -105,7 +109,7 @@ public class CLBenchmarker implements Benchmarker {
             if (kernelProgram == null || kernelExecutor == null)
                 throw new BenchmarkConfigException("Unrecognized kernel!");
 
-            kernelExecutor.init(kernelProgram, device, workSize);
+            kernelExecutor.init(kernelProgram, device, globalWorkSize, localWorkSize);
             return new CLBenchmarker(kernelExecutor);
         }
     }

@@ -12,6 +12,7 @@ public class CommandArguments {
     private static final String OPT_CL_DEVICE = "device";
     private static final String OPT_DURATION = "duration";
     private static final String OPT_THREAD_COUNT = "threads";
+    private static final String OPT_LOCAL_WORK_SIZE = "local-work-size";
     private static final String OPT_DIFFICULTY = "difficulty";
     private static final String OPT_KERNEL_FILE = "kernel-file";
 //    private static final String OPT_KERNEL_INTERFACE = "kernel-interface";
@@ -46,6 +47,10 @@ public class CommandArguments {
 
     public Optional<Long> getThreadCount() throws ParseException {
         return getOption(OPT_THREAD_COUNT, Long::parseLong);
+    }
+
+    public Optional<Long> getLocalWorkSize() throws ParseException {
+        return getOption(OPT_LOCAL_WORK_SIZE, Long::parseLong);
     }
 
     public Set<Difficulty> getDifficulties() throws ParseException {
@@ -95,31 +100,35 @@ public class CommandArguments {
     private Options generateOptions() {
         return new Options()
                 .addOption(Option.builder("g").longOpt(OPT_CL_DEVICE)
-                        .desc("Sets OpenCL platform and device to benchmark")
+                        .desc("Sets which OpenCL device to benchmark.")
                         .hasArg().numberOfArgs(1).argName("platid:devid")
                         .build())
                 .addOption(Option.builder("d").longOpt(OPT_DURATION)
-                        .desc("Specifies the total benchmark duration (default = 10s)")
+                        .desc("Specifies the total benchmark duration.")
                         .hasArg().numberOfArgs(1).argName("seconds")
                         .build())
                 .addOption(Option.builder("t").longOpt(OPT_THREAD_COUNT)
-                        .desc("Batch/thread count")
+                        .desc("Thread count/global work size.")
                         .hasArg().numberOfArgs(1).argName("threads")
                         .build())
+                .addOption(Option.builder().longOpt(OPT_LOCAL_WORK_SIZE)
+                        .desc("Specify the local work size for OpenCL to use. Acceptable values depend on hardware.")
+                        .hasArg().numberOfArgs(1).argName("size")
+                        .build())
                 .addOption(Option.builder("D").longOpt(OPT_DIFFICULTY)
-                        .desc("Compares the result against the difficulty threshold")
+                        .desc("Compares the result against the difficulty threshold.")
                         .hasArg().argName("difficulty")
                         .build())
                 .addOption(Option.builder().longOpt(OPT_KERNEL_FILE)
-                        .desc("Specifies a custom OpenCL kernel file")
-                        .hasArg().numberOfArgs(1).argName("path to file")
+                        .desc("Specifies a custom OpenCL kernel file.")
+                        .hasArg().numberOfArgs(1).argName("path")
                         .build())
 //                .addOption(Option.builder().longOpt(OPT_KERNEL_INTERFACE)
-//                        .desc("Specifies the version of the work kernel interface")
+//                        .desc("Specifies the version of the work kernel interface.")
 //                        .hasArg().numberOfArgs(1).argName("version")
 //                        .build())
-                .addOption(Option.builder("kv").longOpt(OPT_KERNEL)
-                        .desc("Specifies the OpenCL kernel program to use (1 or 2)")
+                .addOption(Option.builder().longOpt(OPT_KERNEL)
+                        .desc("Specifies the OpenCL kernel program to use (1 or 2).")
                         .hasArg().numberOfArgs(1).argName("version")
                         .build());
     }

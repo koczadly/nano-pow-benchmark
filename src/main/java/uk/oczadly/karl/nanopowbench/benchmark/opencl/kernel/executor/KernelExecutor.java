@@ -7,16 +7,18 @@ import uk.oczadly.karl.nanopowbench.benchmark.opencl.CLDevice;
 import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.program.KernelProgramSource;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+import java.util.OptionalLong;
 
 import static org.jocl.CL.*;
 
 public abstract class KernelExecutor {
 
-    // Config
     private CLDevice device;
     private KernelProgramSource program;
-    // OpenCL variables
-    private final long[] workSize = new long[1];
+
+    private final long[] globalWorkSize = new long[1];
+    private long[] localWorkSize;
     private cl_kernel clKernel;
     private cl_command_queue clCmdQueue;
 
@@ -29,8 +31,12 @@ public abstract class KernelExecutor {
         return program;
     }
 
-    public long getWorkSize() {
-        return workSize[0];
+    public long getGlobalWorkSize() {
+        return globalWorkSize[0];
+    }
+
+    public Optional<Long> getLocalWorkSize() {
+        return localWorkSize != null ? Optional.of(localWorkSize[0]) : Optional.empty();
     }
 
 
@@ -41,13 +47,15 @@ public abstract class KernelExecutor {
     protected abstract void initKernel(cl_kernel clKernel, cl_context clContext);
 
     public void computeBatch() throws CLException {
-        clEnqueueNDRangeKernel(clCmdQueue, clKernel, 1, null, workSize, null, 0, null, null);
+        clEnqueueNDRangeKernel(clCmdQueue, clKernel, 1, null, globalWorkSize, localWorkSize, 0, null, null);
         clFinish(clCmdQueue); // Wait for completion
     }
 
 
-    public final void init(KernelProgramSource program, CLDevice device, long workSize) throws BenchmarkInitException {
-        this.workSize[0] = workSize;
+    public final void init(KernelProgramSource program, CLDevice device, long workSize, long localWorkSize)
+            throws BenchmarkInitException {
+        this.globalWorkSize[0] = workSize;
+        this.localWorkSize = localWorkSize < 0 ? null : new long[] { localWorkSize };
 
         if (this.program != null) return; // Already initialized
 
