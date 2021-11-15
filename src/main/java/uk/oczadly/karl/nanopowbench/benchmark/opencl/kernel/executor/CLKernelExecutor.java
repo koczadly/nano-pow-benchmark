@@ -8,60 +8,88 @@ import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.program.KernelProgra
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-import java.util.OptionalLong;
 
 import static org.jocl.CL.*;
 
-public abstract class KernelExecutor {
+public abstract class CLKernelExecutor {
 
-    private CLDevice device;
-    private KernelProgramSource program;
+    static {
+        setExceptionsEnabled(true); // Configure JOCL
+    }
 
-    private final long[] globalWorkSize = new long[1];
-    private long[] localWorkSize;
+    private final String functionName, displayName;
+    private final CLDevice device;
+    private final KernelProgramSource program;
+    // OpenCL buffers
+    private final long[] globalWorkSize, localWorkSize;
+    // OpenCL objects
     private cl_kernel clKernel;
     private cl_command_queue clCmdQueue;
+    private cl_context clContext;
+    private cl_device_id clDevice;
+    private cl_program clProgram;
+
+    public CLKernelExecutor(String functionName, String displayName,
+                            KernelProgramSource program, CLDevice device,
+                            long globalWorkSize, long localWorkSize) throws BenchmarkInitException {
+        this.functionName = functionName;
+        this.displayName = displayName;
+        this.program = program;
+        this.device = device;
+        this.globalWorkSize = new long[] { globalWorkSize };
+        this.localWorkSize = localWorkSize < 0 ? null : new long[] { localWorkSize };
+        initDevice();
+    }
 
 
-    public CLDevice getDevice() {
+    public final String getKernelFunctionName() {
+        return functionName;
+    }
+
+    public final String getDisplayName() {
+        return displayName;
+    }
+
+    public final CLDevice getDevice() {
         return device;
     }
 
-    public KernelProgramSource getProgram() {
+    public final KernelProgramSource getProgram() {
         return program;
     }
 
-    public long getGlobalWorkSize() {
+    public final long getGlobalWorkSize() {
         return globalWorkSize[0];
     }
 
-    public Optional<Long> getLocalWorkSize() {
+    public final Optional<Long> getLocalWorkSize() {
         return localWorkSize != null ? Optional.of(localWorkSize[0]) : Optional.empty();
     }
 
+    public final void init() throws BenchmarkInitException {
+        if (clKernel == null) {
+            initKernel();
+        }
+    }
 
-    public abstract String getDisplayName();
-
-    public abstract String getKernelFunctionName();
-
-    protected abstract void initKernel(cl_kernel clKernel, cl_context clContext);
+    protected abstract void initKernelArgs(cl_kernel clKernel, cl_context clContext);
 
     public void computeBatch() throws CLException {
         clEnqueueNDRangeKernel(clCmdQueue, clKernel, 1, null, globalWorkSize, localWorkSize, 0, null, null);
         clFinish(clCmdQueue); // Wait for completion
     }
 
+    public void cleanup() {
+        // Cleanup OpenCL objects
+        clReleaseContext(clContext);
+        clReleaseDevice(clDevice);
+        clReleaseCommandQueue(clCmdQueue);
+        clReleaseKernel(clKernel);
+        clReleaseProgram(clProgram);
+    }
 
-    public final void init(KernelProgramSource program, CLDevice device, long workSize, long localWorkSize)
-            throws BenchmarkInitException {
-        this.globalWorkSize[0] = workSize;
-        this.localWorkSize = localWorkSize < 0 ? null : new long[] { localWorkSize };
 
-        if (this.program != null) return; // Already initialized
-
-        this.program = program;
-        this.device = device;
-        setExceptionsEnabled(true); // Configure JOCL
+    private void initDevice() throws BenchmarkInitException {
         try {
             // Reusable buffer objects
             byte[] strBuffer = new byte[256];
@@ -86,7 +114,7 @@ public abstract class KernelExecutor {
                 throw new BenchmarkConfigException("Device ID " + device.getID() + " not recognized.");
             cl_device_id[] clDeviceIdBuffer = new cl_device_id[numDevices];
             clGetDeviceIDs(clPlatform, CL_DEVICE_TYPE_ALL, numDevices, clDeviceIdBuffer, null);
-            cl_device_id clDevice = clDeviceIdBuffer[device.getID()];
+            clDevice = clDeviceIdBuffer[device.getID()];
 
             // Fetch device information
             clGetPlatformInfo(clPlatform, CL_PLATFORM_NAME, strBuffer.length, Pointer.to(strBuffer), longBuffer);
@@ -95,15 +123,21 @@ public abstract class KernelExecutor {
             device.setDeviceName(new String(strBuffer, 0, (int)longBuffer[0] - 1, StandardCharsets.UTF_8));
 
             // Create device objects
-            cl_context clContext = clCreateContext(clContextProperties, 1, clDeviceIdBuffer, null, null, null);
+            clContext = clCreateContext(clContextProperties, 1, clDeviceIdBuffer, null, null, null);
             cl_queue_properties clQueueProperties = new cl_queue_properties();
             clCmdQueue = clCreateCommandQueueWithProperties(clContext, clDevice, clQueueProperties, null);
+        } catch (CLException e) {
+            throw new BenchmarkInitException("OpenCL error occurred during initialization!", e);
+        }
+    }
 
+    private void initKernel() throws BenchmarkInitException {
+        try {
             // Create the program from the source code
             String[] programCode = { program.load() };
-            cl_program clProgram = clCreateProgramWithSource(clContext, 1, programCode, null, null);
+            clProgram = clCreateProgramWithSource(clContext, 1, programCode, null, null);
             try {
-                clBuildProgram(clProgram, 1, clDeviceIdBuffer, null, null, null);
+                clBuildProgram(clProgram, 1, new cl_device_id[] { clDevice }, null, null, null);
             } catch (CLException e) {
                 throw new BenchmarkInitException("Invalid kernel code!", e);
             }
@@ -111,18 +145,22 @@ public abstract class KernelExecutor {
             // Create the kernel and memory buffers
             try {
                 clKernel = clCreateKernel(clProgram, getKernelFunctionName(), null);
-                initKernel(clKernel, clContext);
+                initKernelArgs(clKernel, clContext);
             } catch (CLException e) {
                 throw new BenchmarkInitException("Couldn't construct OpenCL kernel!", e);
             }
-
-            // Cleanup memory
-            clReleaseDevice(clDevice);
-            clReleaseProgram(clProgram);
-            clReleaseContext(clContext);
         } catch (CLException e) {
             throw new BenchmarkInitException("OpenCL error occurred during initialization!", e);
         }
     }
 
+
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            cleanup();
+        } finally {
+            super.finalize();
+        }
+    }
 }

@@ -6,8 +6,9 @@ import uk.oczadly.karl.nanopowbench.benchmark.Benchmarker;
 import uk.oczadly.karl.nanopowbench.benchmark.exception.BenchmarkConfigException;
 import uk.oczadly.karl.nanopowbench.benchmark.exception.BenchmarkException;
 import uk.oczadly.karl.nanopowbench.benchmark.exception.BenchmarkInitException;
-import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.executor.KernelExecutor;
 import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.ProvidedKernels;
+import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.executor.CLKernelExecutor;
+import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.executor.KernelExecutorFactory;
 import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.program.FileKernelProgramSource;
 import uk.oczadly.karl.nanopowbench.benchmark.opencl.kernel.program.KernelProgramSource;
 
@@ -20,9 +21,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class CLBenchmarker implements Benchmarker {
 
-    private final KernelExecutor kernel;
+    private final CLKernelExecutor kernel;
 
-    private CLBenchmarker(KernelExecutor kernel) {
+    private CLBenchmarker(CLKernelExecutor kernel) {
         this.kernel = kernel;
     }
 
@@ -30,17 +31,25 @@ public class CLBenchmarker implements Benchmarker {
     public LinkedHashMap<String, String> getParameters() {
         CLDevice dev = kernel.getDevice();
         LinkedHashMap<String, String> params = new LinkedHashMap<>();
-        params.put("Device", dev.getDeviceName() + " (#" + dev.getID() + ")");
-        params.put("Platform", dev.getPlatformName() + " (#" + dev.getPlatformId() + ")");
-        params.put("Threads (global work size)", String.format("%,d", kernel.getGlobalWorkSize()));
-        params.put("Local work size", kernel.getLocalWorkSize().map(s -> String.format("%,d", s)).orElse("Default"));
-        params.put("Kernel program", kernel.getProgram().toDisplayString());
-        params.put("Kernel function interface", kernel.getDisplayName());
+        params.put("Device",
+                dev.getDeviceName() + " (#" + dev.getID() + ")");
+        params.put("Platform",
+                dev.getPlatformName() + " (#" + dev.getPlatformId() + ")");
+        params.put("Threads (global work size)",
+                String.format("%,d", kernel.getGlobalWorkSize()));
+        params.put("Local work size",
+                kernel.getLocalWorkSize().map(s -> String.format("%,d", s)).orElse("Default"));
+        params.put("Kernel program",
+                kernel.getProgram().getDescriptiveName());
+        params.put("Kernel function",
+                kernel.getDisplayName());
         return params;
     }
 
     @Override
     public BenchmarkResults run(long duration, TimeUnit durationUnit) throws BenchmarkException {
+        kernel.init();
+
         long durationNs = durationUnit.toNanos(duration);
         long startTime = System.nanoTime(), timeElapsed, totalWorkTime = 0, iterations = 0;
 
@@ -56,6 +65,7 @@ public class CLBenchmarker implements Benchmarker {
             iterations++;
         } while ((timeElapsed = System.nanoTime() - startTime) < durationNs);
 
+        // Compute results
         return new BenchmarkResults(
                 timeElapsed, totalWorkTime,
                 iterations * kernel.getGlobalWorkSize(),
@@ -67,10 +77,10 @@ public class CLBenchmarker implements Benchmarker {
         private CLDevice device = new CLDevice(0, 0);
         private long globalWorkSize = 1024 * 1024, localWorkSize = -1;
         private KernelProgramSource kernelProgram;
-        private KernelExecutor kernelExecutor;
+        private KernelExecutorFactory kernelExecutor;
 
         public Builder() {
-            useProvidedKernel(ProvidedKernels.getDefault());
+            useProvidedKernel(ProvidedKernels.DEFAULT);
         }
 
 
@@ -79,38 +89,31 @@ public class CLBenchmarker implements Benchmarker {
             return this;
         }
 
-        public Builder setGlobalWorkSize(long workSize) {
-            this.globalWorkSize = workSize;
+        public Builder setGlobalWorkSize(long size) {
+            this.globalWorkSize = size;
             return this;
         }
 
-        public Builder setLocalWorkSize(long localWorkSize) {
-            this.localWorkSize = localWorkSize;
+        public Builder setLocalWorkSize(long size) {
+            this.localWorkSize = size;
             return this;
         }
 
-        public Builder useKernelFile(Path filePath) {
-            this.kernelProgram = new FileKernelProgramSource(filePath);
+        public Builder useKernelFile(Path file) {
+            this.kernelProgram = new FileKernelProgramSource(file);
             return this;
         }
 
-        public Builder useKernelExecutor(KernelExecutor executor) {
-            this.kernelExecutor = executor;
-            return this;
-        }
-
-        public Builder useProvidedKernel(ProvidedKernels.ProvidedKernel kernel) {
-            this.kernelProgram = kernel.getProgramSource();
-            this.kernelExecutor = kernel.getExecutor();
+        public Builder useProvidedKernel(String variantName) {
+            this.kernelProgram = ProvidedKernels.getProgram(variantName);
+            this.kernelExecutor = ProvidedKernels.getExecutor(variantName);
             return this;
         }
 
         public CLBenchmarker build() throws BenchmarkInitException {
             if (kernelProgram == null || kernelExecutor == null)
                 throw new BenchmarkConfigException("Unrecognized kernel!");
-
-            kernelExecutor.init(kernelProgram, device, globalWorkSize, localWorkSize);
-            return new CLBenchmarker(kernelExecutor);
+            return new CLBenchmarker(kernelExecutor.create(kernelProgram, device, globalWorkSize, localWorkSize));
         }
     }
 }

@@ -30,7 +30,7 @@ public class ProvidedKernelProgramSource implements KernelProgramSource {
     }
 
     @Override
-    public String toDisplayString() {
+    public String getDescriptiveName() {
         return displayName;
     }
 

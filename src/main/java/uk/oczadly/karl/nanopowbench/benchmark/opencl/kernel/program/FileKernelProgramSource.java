@@ -30,7 +30,7 @@ public class FileKernelProgramSource implements KernelProgramSource {
     }
 
     @Override
-    public String toDisplayString() {
+    public String getDescriptiveName() {
         return "File (" + file.toString() + ")";
     }
 

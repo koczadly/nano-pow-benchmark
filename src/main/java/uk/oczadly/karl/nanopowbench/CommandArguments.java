@@ -65,8 +65,8 @@ public class CommandArguments {
 //        return getOption(OPT_KERNEL_INTERFACE, Integer::parseInt);
 //    }
 
-    public Optional<ProvidedKernels.ProvidedKernel> getProvidedKernel() throws ParseException {
-        return getOption(OPT_KERNEL, ProvidedKernels::get);
+    public Optional<String> getProvidedKernel() throws ParseException {
+        return getOption(OPT_KERNEL, v -> v);
     }
 
 

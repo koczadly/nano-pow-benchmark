@@ -6,6 +6,6 @@ public interface KernelProgramSource {
 
     String load() throws BenchmarkInitException;
 
-    String toDisplayString();
+    String getDescriptiveName();
 
 }

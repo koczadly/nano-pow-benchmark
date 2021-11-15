@@ -19,13 +19,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class Main {
 
-    private static final Difficulty DIFF_RECEIVE = new Difficulty(Difficulty.DIFF_V2_RECEIVE);
-    private static final Difficulty DIFF_SEND = new Difficulty(Difficulty.DIFF_V2_SEND);
-
-
     public static void main(String[] rawArgs) {
         OutputPrinter out = new OutputPrinter(System.out, 3, 73);
-        out.printHeader("NANO PoW BENCHMARK (Blake2b)", "https://github.com/koczadly/nano-pow-benchmark/");
+        out.printHeader("NANO PROOF-OF-WORK BENCHMARK", "https://github.com/koczadly/nano-pow-benchmark/");
         out.blankLine();
 
         CommandArguments args = new CommandArguments();
@@ -33,8 +29,8 @@ public class Main {
             // Parse args
             args.parse(rawArgs);
             Set<Difficulty> difficulties = args.getDifficulties();
-            difficulties.add(DIFF_RECEIVE);
-            difficulties.add(DIFF_SEND);
+            difficulties.add(new Difficulty(Difficulty.DIFF_V2_RECEIVE));
+            difficulties.add(new Difficulty(Difficulty.DIFF_V2_SEND));
 
             // Configure benchmark
             Benchmarker bench = BenchmarkerFactory.create(args);
@@ -45,7 +41,7 @@ public class Main {
             out.blankLine();
 
             // Run benchmark
-            out.println(String.format("Running benchmark for %,d seconds...", args.getDuration()));
+            out.println(String.format("Running benchmark for %,d seconds... Please wait...", args.getDuration()));
             out.blankLine();
             BenchmarkResults result = bench.run(args.getDuration(), TimeUnit.SECONDS);
 
@@ -66,9 +62,9 @@ public class Main {
                         double diffProbability = Util.ulongToDouble(-diff.asLong()) / 0x1p64;
                         double diffAvgSecsPerWork = Math.max(1d / (diffProbability * hashrate), secsPerIteration);
                         diffParams.put(diff.toString(),
-                                String.format("%s (%,.4f work/s)",
-                                        MetricPrefix.format(diffAvgSecsPerWork, "s/work", false),
-                                        1d / diffAvgSecsPerWork));
+                                String.format("%,.4f work/s (%s/work)",
+                                        1d / diffAvgSecsPerWork,
+                                        MetricPrefix.format(diffAvgSecsPerWork, "s", false)));
                     });
 
             // Print results
