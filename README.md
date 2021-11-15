@@ -22,7 +22,7 @@ This program requires Java 8 (or above) to be installed on your system, and poss
 You can run the program from the command line like so:
 
 ```text
-java -jar npowbench.jar --device 0:0 --duration 10
+java -jar npowbench.jar [options...]
 ```
 
 ### Command line options
@@ -45,31 +45,32 @@ java -jar npowbench.jar --device 0:0 --duration 15 --difficulty fffffe0000000000
 ### Output
 ```text
 =========================================================================
-                      NANO PoW BENCHMARK (Blake2b)
+                      NANO PROOF-OF-WORK BENCHMARK
              https://github.com/koczadly/nano-pow-benchmark/
 =========================================================================
 
 Benchmark parameters:
-   Device:              Intel(R) HD Graphics 530 (#0)
-   Platform:            Intel(R) OpenCL HD Graphics (#0)
-   Work size (threads): 1,048,576
-   Kernel program:      nano-node V2 (as of commit ff424af)
-   Kernel interface:    nano_work(a, r, i, d)
+   Device:                     Intel(R) HD Graphics 530 (#0)
+   Platform:                   Intel(R) OpenCL HD Graphics (#0)
+   Threads (global work size): 1,048,576
+   Local work size:            Default
+   Kernel program:             nano-node Blake2b V2 (as of ff424af)
+   Kernel function:            nano_work(attempt, result, item, diff)
 
-Running benchmark for 15 seconds...
+Running benchmark for 15 seconds... Please wait...
 
 =========================================================================
                             BENCHMARK RESULTS
 =========================================================================
 Benchmark measurements:
    Total time elapsed:     15.009 s
-   Total computation time: 15.008302 s
-   Batch computation time: 33.278 ms
-   Hash rate:              31.510 MH/s
-   Total computed hashes:  472,907,776
+   Total computation time: 15.008771 s
+   Batch computation time: 33.502 ms
+   Hash rate:              31.299 MH/s
+   Total computed hashes:  469,762,048
 
 Expected performance for difficulty thresholds:
-   fffffe0000000000 [receive]: 266.223 ms/work (3.7563 work/s)
-   fffffff800000000 [send]:    17.038 s/work (0.0587 work/s)
+   fffffe0000000000 [receive]: 3.7312 work/s (268.014 ms/work)
+   fffffff800000000 [send]:    0.0583 work/s (17.153 s/work)
 =========================================================================
 ```
