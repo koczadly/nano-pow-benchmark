@@ -28,7 +28,7 @@ java -jar npowbench.jar [options...]
 ### Command line options
 Option | Description 
 --- | --- 
-`--device <platform:device> | Specify OpenCL device ID and platform ID
+`--device <platform:device>` | Specify OpenCL device ID and platform ID
 `--duration <seconds>` | Benchmark duration in seconds
 `--threads <threads>` | Thread count (global work size)
 `--local-work-size <size>` | Set the OpenCL local work size
